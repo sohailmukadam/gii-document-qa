@@ -1,0 +1,10 @@
+document_name,question_number,question,answer,model,provider,status,error
+tmpewf_hyo5.pdf,1,What important dates or time periods are mentioned?,"The document you provided contains the following important dates and time periods:
+
+*   **Marriage Registration:** The document mentions the registration of marriage under the Law of Marriage, specifically the Marriage Ordinance (Cap. 12751951 ede).
+*   **Marriage Duration:** The document states that any person may contract a statutory marriage recognized as valid through the provisions of Cap. 127.
+*   **Marriage under the Law of Marriage:** The document also mentions the marriage under the Law of Marriage, specifically the Marriage of British Subjects (Facilities) Ordinance (Cap. 428).
+*   **Marriage under the Law of Marriage:** The document mentions the marriage under the Law of Marriage, specifically the Marriage of Mohammedans Ordinance (Cap. 129).
+
+Based on the information provided, the document is a comprehensive overview of important dates and time periods related to marriage in Ghana.",gemma3:270m,ollama,success,
+tmpewf_hyo5.pdf,2,What numerical data or statistics are provided?,"The document provided does not contain any numerical data or statistics. Therefore, I cannot provide a comprehensive answer based on the provided information.",gemma3:270m,ollama,success,

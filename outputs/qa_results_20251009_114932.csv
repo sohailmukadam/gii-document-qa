@@ -1,0 +1,36 @@
+document_name,question_number,question,answer,model,provider,status,error
+tmpewf_hyo5.pdf,1,What is the main research question or topic?,The main research question or topic is to determine the primary research question or topic.,gemma3:270m,ollama,success,
+tmpewf_hyo5.pdf,2,What methodology was used?,"The provided document is a legal document related to marriage and divorce. It describes the process of a marriage, including the stages of dissolution and the legal rights and obligations of the involved parties.
+
+Based on the content, the document appears to be a legal summary or a legal document. It does not contain any specific details about the method used to determine the marriage or the legal rights and obligations of the parties involved.",gemma3:270m,ollama,success,
+tmpewf_hyo5.pdf,3,What are the key findings?,"Okay, I will provide a comprehensive answer based on the provided document content. Please note that the information is based on the provided text and is not exhaustive.
+
+**Key Findings:**
+
+The document highlights several key findings regarding the marriage laws in Ghana.
+
+*   **Marriage Law:** The document outlines the marriage laws in Ghana, emphasizing the importance of the marriage contract. It clarifies the procedure for divorce, the timing of the divorce, and the rights and responsibilities of the husband and wife.
+*   **Marriage Obligations:** The document emphasizes the legal obligations of both the husband and wife regarding the marriage. It outlines the rights of the husband to the custody of his children, the right to re-marry, and the right of the widow to re-marry after the death of her husband.
+*   **Divorce Law:** The document details the process for divorce, including the timing of the divorce, the rights of the husband and wife, and the limitations on the amount of money the husband and wife can divide.
+*   **Marriage Under Cap. 127:** The document clarifies the statutory marriage under Cap. 127, stating that marriage under this law is monogamous and that the capacity to contract a statutory marriage is independent of and is not affected by prohibitions imposed by customary law.
+*   **Marriage under Cap. 129:** The document outlines the statutory marriage under Cap. 129, stating that marriage under this law is monogamous and that the capacity to contract a statutory marriage is independent of and is not affected by prohibitions imposed by customary law.
+*   **Marriage under Cap. 1238:** The document clarifies the statutory marriage under Cap. 1238, stating that marriage under this law is monogamous and that the capacity to contract a statutory marriage is independent of and is not affected by prohibitions imposed by customary law.
+*   **Marriage in Ghana:** The document mentions that marriage is under Cap. 127 in Ghana and Cap. 129 in Ghana, indicating that the laws governing marriage in Ghana are similar to those in other countries.
+*   **Legal Framework:** The document outlines the legal framework governing marriage in Ghana, including the provisions of the Marriage Ordinance (Cap. 12751951 ede) and the Marriage of British Subjects (Facilities Ordinance) and the Marriage of Mohammedans Ordinance (Cap. 129).
+*   **Marriage Rights:** The document highlights the rights and responsibilities of both the husband and wife regarding the marriage. It emphasizes the right of the husband to the custody of his children, the right to re-marry after the death of his wife, and the right of the widow to re-marry after the death of her husband.
+
+**In summary, the document provides a comprehensive overview of the marriage laws in Ghana, emphasizing the importance of the marriage contract, the legal obligations of both the husband and wife, and the rights and responsibilities of the husband and wife.**
+
+Please let me know if you have any other questions or would like me to elaborate on any of these points.",gemma3:270m,ollama,success,
+tmpewf_hyo5.pdf,4,What are the main conclusions?,"Okay, I will provide a comprehensive answer based on the provided text. Please let me know if you have any other questions.",gemma3:270m,ollama,success,
+tmpewf_hyo5.pdf,5,What limitations are mentioned?,"Okay, I will provide a comprehensive answer based on the provided document content. Please note that the specific limitations mentioned in the document are not detailed here, but I will aim to address them clearly and concisely.
+
+Here's the answer:
+
+The document contains the following limitations:
+
+*   **Limitations on the Right of the Wife to Marry:** The wife is not entitled to marry if she is not already married.
+*   **Limitations on the Right of the Widow to Marry:** The widow is not entitled to marry if she is not already married.
+*   **Limitations on the Right of the Spouse to Marry:** The spouse is not entitled to marry if they are not already married.
+
+I hope this comprehensive answer is helpful. Please let me know if you have any other questions.",gemma3:270m,ollama,success,

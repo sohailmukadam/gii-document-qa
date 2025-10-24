@@ -1,0 +1,11 @@
+# OpenAI API Key (optional - if you want to use OpenAI)
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Anthropic API Key (optional - if you want to use Claude)
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
+# Default LLM provider (openai or anthropic)
+DEFAULT_LLM_PROVIDER=openai
+
+# Upload directory for documents
+UPLOAD_DIR=uploads
