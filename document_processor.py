@@ -13,9 +13,8 @@ import io
 
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/bin/tesseract'
 
-
 class DocumentProcessor:
-    """Handles document processing for PDF files with intelligent caching."""
+    """Handles document processing for PDF files with caching."""
     
     SUPPORTED_EXTENSIONS = {'.pdf'}
     CACHE_DIR = "document_cache"
@@ -268,32 +267,3 @@ class DocumentProcessor:
             'total_cache_size_mb': total_size / (1024 * 1024),
             'cache_directory': self.cache_dir
         }
-
-
-# Test the module
-def main():
-    doc_processor = DocumentProcessor()
-    
-    # Show cache stats
-    stats = doc_processor.get_cache_stats()
-    print(f"Cache stats: {stats['total_cached_files']} files, {stats['total_cache_size_mb']:.2f} MB")
-    print()
-    
-    # Process a document (will use cache if available)
-    result = doc_processor.process_document("documents/ghana_gonja_marriage.pdf")
-    
-    print(f"\nExtracted {result['word_count']} words")
-    print(f"From cache: {result['from_cache']}")
-    
-    # Optional: Save to separate output file as well
-    output_file = os.path.join("documents_read", "ghana_gonja_marriage.txt")
-    os.makedirs("documents_read", exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(f"Word Count: {result['word_count']}\n")
-        f.write("=" * 50 + "\n\n")
-        f.write(result['text_content'])
-    print(f"Text also saved to: {output_file}")
-
-
-if __name__ == "__main__":
-    main()
