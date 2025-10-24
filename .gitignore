@@ -6,3 +6,13 @@ __pycache__/
 
 # macOS system files
 .DS_Store
+
+# Documents and Document Chase
+documents/
+document_cache/
+
+# Ouputs
+ouputs/
+
+# Old Code
+old_code/
