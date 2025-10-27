@@ -175,11 +175,13 @@ def initialize_clients():
             return False
     return True
 
-
 def process_uploaded_files(uploaded_files) -> List[Dict[str, Any]]:
     """Process multiple uploaded files and return document data."""
     doc_processor = DocumentProcessor()
     processed_docs = []
+    
+    # Create a temp directory for uploaded files
+    temp_dir = tempfile.mkdtemp()
     
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -187,29 +189,36 @@ def process_uploaded_files(uploaded_files) -> List[Dict[str, Any]]:
     for idx, uploaded_file in enumerate(uploaded_files):
         status_text.text(f"Processing {idx + 1}/{len(uploaded_files)}: {uploaded_file.name}")
         
-        # Save uploaded file to temporary location
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            tmp_file_path = tmp_file.name
+        # Save with original filename in temp directory
+        file_path = os.path.join(temp_dir, uploaded_file.name)
+        
+        with open(file_path, 'wb') as f:
+            f.write(uploaded_file.getvalue())
         
         try:
             # Process the document (will use cache if available)
-            document_data = doc_processor.process_document(tmp_file_path)
+            document_data = doc_processor.process_document(file_path)
             processed_docs.append(document_data)
             
-            # Clean up temporary file
-            os.unlink(tmp_file_path)
+            # Clean up this file
+            os.unlink(file_path)
             
         except Exception as e:
             st.error(f"Error processing {uploaded_file.name}: {str(e)}")
-            if os.path.exists(tmp_file_path):
-                os.unlink(tmp_file_path)
+            if os.path.exists(file_path):
+                os.unlink(file_path)
         
         progress_bar.progress((idx + 1) / len(uploaded_files))
     
     status_text.text("All documents processed successfully")
     progress_bar.empty()
     status_text.empty()
+    
+    # Clean up temp directory
+    try:
+        os.rmdir(temp_dir)
+    except:
+        pass  # Directory might not be empty if errors occurred
     
     return processed_docs
 

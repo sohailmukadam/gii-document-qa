@@ -1,176 +1,147 @@
 """
-LLM Client module with improved prompting for CSV-friendly outputs.
+Simplified and faster LLM Client with concurrent processing support.
 """
 
-import asyncio
-from typing import Optional, Dict, Any
+import subprocess
+from typing import Dict, Any, List
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class LLMClient:
     """Client for interacting with Ollama local models."""
     
-    def __init__(self, provider: str = "ollama"):
+    def __init__(self, provider: str = "ollama", max_workers: int = 4):
         """
         Initialize the LLM client.
         
         Args:
-            provider: LLM provider (kept for compatibility, only 'ollama' supported)
+            provider: LLM provider (only 'ollama' supported)
+            max_workers: Maximum concurrent requests (default: 4)
         """
-        self.provider = provider
         if provider != "ollama":
             raise ValueError(f"Only 'ollama' provider is supported, got: {provider}")
+        
+        self.provider = provider
+        self.max_workers = max_workers
     
     def ask_question(self, document_text: str, question: str, 
-                    model: Optional[str] = None) -> Dict[str, Any]:
+                    model: str = "gemma2:2b") -> Dict[str, Any]:
         """
-        Ask a question about the document (synchronous wrapper).
+        Ask a single question about the document.
         
         Args:
             document_text: The text content of the document
             question: The question to ask
-            model: Optional model name (defaults to gemma2:2b)
+            model: Model name (default: gemma2:2b)
             
         Returns:
             Dictionary with answer, model, and provider information
         """
-        return asyncio.run(self._ask_question_async(document_text, question, model))
+        prompt = self._build_prompt(document_text, question)
+        answer = self._call_ollama(model, prompt)
+        
+        return {
+            "answer": self._clean_answer(answer),
+            "model": model,
+            "provider": self.provider
+        }
     
-    def ask_question_structured(self, document_text: str, question: str, 
-                               model: Optional[str] = None) -> Dict[str, Any]:
+    def ask_questions_batch(self, document_text: str, questions: List[str],
+                          model: str = "gemma2:2b") -> List[Dict[str, Any]]:
         """
-        Ask a question with structured prompting for CSV-friendly output.
+        Ask multiple questions concurrently for speed.
         
         Args:
             document_text: The text content of the document
-            question: The question to ask
-            model: Optional model name (defaults to gemma2:2b)
+            questions: List of questions to ask
+            model: Model name (default: gemma2:2b)
             
         Returns:
-            Dictionary with answer, model, and provider information
+            List of result dictionaries
         """
-        return asyncio.run(self._ask_question_structured_async(document_text, question, model))
-    
-    async def _ask_question_async(self, document_text: str, question: str, 
-                                  model: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Async implementation of ask_question (standard prompting).
-        """
-        if not model:
-            model = "gemma2:2b"
+        results = []
         
-        prompt = f"""You are a helpful assistant that answers questions based on the provided document content.
-
-Document Content:
-{document_text}
-
-Question: {question}
-
-Please provide a comprehensive answer based on the document content. If the answer cannot be found in the document, please state that clearly.
-"""
-        
-        try:
-            process = await asyncio.create_subprocess_exec(
-                "ollama", "run", model, prompt,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode != 0:
-                raise Exception(f"Ollama command failed: {stderr.decode().strip()}")
-            
-            answer = stdout.decode().strip()
-            
-            return {
-                "answer": answer,
-                "model": model,
-                "provider": self.provider
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all questions at once
+            future_to_question = {
+                executor.submit(self.ask_question, document_text, q, model): q 
+                for q in questions
             }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_question):
+                question = future_to_question[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    results.append({
+                        "answer": None,
+                        "model": model,
+                        "provider": self.provider,
+                        "error": str(e)
+                    })
         
-        except Exception as e:
-            raise Exception(f"Ollama error: {str(e)}")
+        return results
     
-    async def _ask_question_structured_async(self, document_text: str, question: str, 
-                                            model: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Async implementation with structured prompting for CSV-friendly output.
-        """
-        if not model:
-            model = "gemma2:2b"
-        
-        prompt = f"""You are a helpful assistant that answers questions based on the provided document content.
+    def _build_prompt(self, document_text: str, question: str) -> str:
+        """Build a concise prompt for CSV-friendly output."""
+        return f"""Answer this question based on the document below. Be concise and use complete sentences. If listing items, separate with semicolons. No bullet points or markdown.
 
-Document Content:
+Document:
 {document_text}
 
 Question: {question}
-
-Please provide a clear, concise answer based on the document content. Format your response as follows:
-- Use complete sentences but be concise
-- Write in a single paragraph without line breaks
-- If listing multiple items, separate them with semicolons (;) not bullet points
-- Keep the answer focused and to-the-point
-- If the answer cannot be found in the document, state "Information not found in document"
-- Do not use markdown formatting, bullet points, or numbered lists
 
 Answer:"""
-        
+    
+    def _call_ollama(self, model: str, prompt: str) -> str:
+        """Call Ollama via subprocess (synchronous, but fast enough)."""
         try:
-            process = await asyncio.create_subprocess_exec(
-                "ollama", "run", model, prompt,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+            result = subprocess.run(
+                ["ollama", "run", model, prompt],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=120  # 2 minute timeout
             )
-            
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode != 0:
-                raise Exception(f"Ollama command failed: {stderr.decode().strip()}")
-            
-            answer = stdout.decode().strip()
-            
-            return {
-                "answer": answer,
-                "model": model,
-                "provider": self.provider
-            }
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Ollama error: {e.stderr}")
+        except subprocess.TimeoutExpired:
+            raise Exception("Ollama request timed out")
+    
+    def _clean_answer(self, answer: str) -> str:
+        """Clean answer for CSV compatibility."""
+        if not answer:
+            return ""
         
-        except Exception as e:
-            raise Exception(f"Ollama error: {str(e)}")
+        # Join lines into single paragraph
+        lines = [line.strip() for line in answer.split('\n') if line.strip()]
+        cleaned = ' '.join(lines)
+        
+        # Remove extra spaces
+        while '  ' in cleaned:
+            cleaned = cleaned.replace('  ', ' ')
+        
+        return cleaned.strip()
     
     def get_available_models(self) -> Dict[str, list]:
-        """
-        Get list of available models.
-        
-        Returns:
-            Dictionary with provider as key and list of models as value
-        """
-        return {
-            "ollama": ["gemma2:2b"]
-        }
-
-
-# Test the module
-async def test_client():
-    """Test function for the LLM client."""
-    client = LLMClient()
-    
-    # Read the processed document
-    with open("documents_read/ghana_gonja_marriage.txt", 'r', encoding='utf-8') as f:
-        document_text = f.read()
-    
-    # Ask a question with structured prompting
-    result = await client._ask_question_structured_async(
-        document_text=document_text,
-        question="What is this document about?",
-        model="gemma2:2b"
-    )
-    
-    print(f"Model: {result['model']}")
-    print(f"Provider: {result['provider']}")
-    print(f"\nAnswer:\n{result['answer']}")
-
-
-if __name__ == "__main__":
-    asyncio.run(test_client())
+        """Get list of available models."""
+        try:
+            result = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            # Parse model names from output (skip header)
+            models = []
+            for line in result.stdout.split('\n')[1:]:
+                if line.strip():
+                    model_name = line.split()[0]
+                    models.append(model_name)
+            
+            return {"ollama": models if models else ["gemma2:2b"]}
+        except:
+            return {"ollama": ["gemma2:2b"]}
