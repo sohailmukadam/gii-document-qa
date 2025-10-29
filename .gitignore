@@ -16,3 +16,6 @@ ouputs/
 
 # Old Code
 old_code/
+
+# Local Environment
+.env

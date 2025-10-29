@@ -22,7 +22,7 @@ if 'llm_client' not in st.session_state:
 if 'batch_processor' not in st.session_state:
     st.session_state.batch_processor = None
 if 'selected_model' not in st.session_state:
-    st.session_state.selected_model = "gemma2:2b"
+    st.session_state.selected_model = "gemini-2.0-flash-lite"
 if 'batch_questions' not in st.session_state:
     st.session_state.batch_questions = ""
 
@@ -30,12 +30,11 @@ def initialize_clients():
     """Initialize LLM client and batch processor."""
     if st.session_state.llm_client is None:
         try:
-            st.session_state.llm_client = LLMClient(provider="ollama")
+            st.session_state.llm_client = LLMClient(provider="gemini")
             st.session_state.batch_processor = BatchQAProcessor(st.session_state.llm_client)
             return True
         except ValueError as e:
             st.error(f"Error initializing LLM client: {e}")
-            st.info("Please ensure Ollama is installed and running.")
             return False
     return True
 
@@ -97,7 +96,7 @@ def main():
             
             # Model selection
             available_models = st.session_state.llm_client.get_available_models()
-            model_list = available_models.get("ollama", [])
+            model_list = available_models.get("gemini", [])
             if model_list:
                 selected_model = st.selectbox(
                     "Model Selection:",
@@ -106,10 +105,9 @@ def main():
                 )
                 st.session_state.selected_model = selected_model
             else:
-                st.warning("No models detected. Use 'ollama pull <model>' to install models.")
+                st.warning("No models detected.")
         else:
             st.error("Status: Offline")
-            st.error("Please start Ollama service: `ollama serve`")
         st.divider()
         
         # Cache statistics
@@ -170,7 +168,7 @@ def main():
         if not st.session_state.documents:
             st.info("Please upload and process documents in the Document Upload tab before proceeding.")
         elif not llm_available:
-            st.error("LLM client unavailable. Please ensure Ollama is running.")
+            st.error("LLM client unavailable.")
         else:
             st.write("Enter questions (one per line) to process across all loaded documents:")
             batch_questions_input = st.text_area(

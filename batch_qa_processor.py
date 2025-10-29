@@ -10,7 +10,7 @@ class BatchQAProcessor:
         """Initialize the batch Q&A processor."""
         self.llm_client = llm_client
     
-    def process_single_document(self, document_text: str, questions: List[str], document_name: str, model: str = "gemma2:2b") -> List[Dict[str, Any]]:
+    def process_single_document(self, document_text: str, questions: List[str], document_name: str, model: str = "gemini-2.0-flash-lite") -> List[Dict[str, Any]]:
         """Process multiple questions for a single document (concurrent)."""
         print(f"\nProcessing {len(questions)} questions for '{document_name}'...")
         
@@ -34,7 +34,7 @@ class BatchQAProcessor:
         print(f"Completed: {success_count}/{len(questions)} successful")
         return formatted_results
     
-    def process_multiple_documents_batch(self, documents: List[Dict[str, Any]], questions: List[str], model: str = "gemma2:2b") -> List[Dict[str, Any]]:
+    def process_multiple_documents_batch(self, documents: List[Dict[str, Any]], questions: List[str], model: str = "gemini-2.0-flash-lite") -> List[Dict[str, Any]]:
         """Process questions for multiple documents."""
         print(f"Batch Processing: {len(documents)} documents with {len(questions)} questions each.")
         all_results = []
