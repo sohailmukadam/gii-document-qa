@@ -1,15 +1,13 @@
 import subprocess
 from typing import Dict, Any, List
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class LLMClient:
     """Client for interacting with Ollama local models."""    
-    def __init__(self, provider: str = "ollama", max_workers: int = 4):
+    def __init__(self, provider: str = "ollama"):
         """Initialize the LLM client."""
         if provider != "ollama":
             raise ValueError(f"Only 'ollama' provider is supported, got: {provider}")
         self.provider = provider
-        self.max_workers = max_workers
     
     def ask_question(self, document_text: str, question: str, model: str = "gemma2:2b") -> Dict[str, Any]:
         """Ask a single question about the document."""
@@ -22,28 +20,19 @@ class LLMClient:
         }
     
     def ask_questions_batch(self, document_text: str, questions: List[str], model: str = "gemma2:2b") -> List[Dict[str, Any]]:
-        """Ask multiple questions concurrently for speed."""
+        """Ask multiple questions sequentially."""
         results = []
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all questions at once
-            future_to_question = {
-                executor.submit(self.ask_question, document_text, q, model): q 
-                for q in questions
-            }
-            
-            # Collect results as they complete
-            for future in as_completed(future_to_question):
-                question = future_to_question[future]
-                try:
-                    result = future.result()
-                    results.append(result)
-                except Exception as e:
-                    results.append({
-                        "answer": None,
-                        "model": model,
-                        "provider": self.provider,
-                        "error": str(e)
-                    })
+        for question in questions:
+            try:
+                result = self.ask_question(document_text, question, model)
+                results.append(result)
+            except Exception as e:
+                results.append({
+                    "answer": None,
+                    "model": model,
+                    "provider": self.provider,
+                    "error": str(e)
+                })
         return results
     
     def build_prompt(self, document_text: str, question: str) -> str:
