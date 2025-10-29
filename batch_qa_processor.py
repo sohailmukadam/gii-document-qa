@@ -1,7 +1,3 @@
-"""
-Simplified batch Q&A processor with concurrent processing.
-"""
-
 import csv
 import os
 from typing import List, Dict, Any
