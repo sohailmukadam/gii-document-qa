@@ -13,10 +13,10 @@ class LLMClient:
     
     def ask_question(self, document_text: str, question: str, model: str = "gemma2:2b") -> Dict[str, Any]:
         """Ask a single question about the document."""
-        prompt = self._build_prompt(document_text, question)
-        answer = self._call_ollama(model, prompt)
+        prompt = self.build_prompt(document_text, question)
+        answer = self.call_ollama(model, prompt)
         return {
-            "answer": self._clean_answer(answer),
+            "answer": self.clean_answer(answer),
             "model": model,
             "provider": self.provider
         }
@@ -24,7 +24,6 @@ class LLMClient:
     def ask_questions_batch(self, document_text: str, questions: List[str], model: str = "gemma2:2b") -> List[Dict[str, Any]]:
         """Ask multiple questions concurrently for speed."""
         results = []
-        
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             # Submit all questions at once
             future_to_question = {
@@ -45,14 +44,13 @@ class LLMClient:
                         "provider": self.provider,
                         "error": str(e)
                     })
-        
         return results
     
-    def _build_prompt(self, document_text: str, question: str) -> str:
+    def build_prompt(self, document_text: str, question: str) -> str:
         """Build a concise prompt for CSV-friendly output."""
         return f"Answer this question based on the document below. Be concise and use complete sentences. If listing items, separate with semicolons. No bullet points or markdown. Document: {document_text} Question: {question} Answer:"
     
-    def _call_ollama(self, model: str, prompt: str) -> str:
+    def call_ollama(self, model: str, prompt: str) -> str:
         """Call Ollama via subprocess."""
         try:
             result = subprocess.run(
@@ -68,7 +66,7 @@ class LLMClient:
         except subprocess.TimeoutExpired:
             raise Exception("Ollama request timed out")
     
-    def _clean_answer(self, answer: str) -> str:
+    def clean_answer(self, answer: str) -> str:
         """Clean answer for CSV compatibility."""
         if not answer:
             return ""
